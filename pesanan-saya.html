@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pesanan Saya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --primary: #00AAE7; --bg: #f8fafc; --text: #0f172a; --border: #e2e8f0; }
+        * { box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        body { background: var(--bg); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        .app-wrapper { width: 100%; max-width: 480px; background: white; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        
+        .header { padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: white; position: sticky; top: 0; z-index: 10;}
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .back-btn { width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; justify-content: center; align-items: center; color: var(--text); text-decoration: none; font-size: 16px; }
+        .header-title { font-size: 18px; font-weight: 800; color: var(--text); margin: 0; }
+        .btn-logout { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; }
+
+        .content { padding: 20px; background: #f8fafc; flex-grow: 1; }
+        
+        .user-card { background: var(--primary); padding: 20px; border-radius: 16px; color: white; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 15px -3px rgba(0, 170, 231, 0.3); }
+        .user-avatar { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+        .user-info h3 { margin: 0 0 2px 0; font-size: 16px; font-weight: 800; }
+        .user-info p { margin: 0; font-size: 12px; opacity: 0.9; font-weight: 600; }
+
+        .section-title { font-size: 15px; font-weight: 800; margin-bottom: 15px; color: var(--text); }
+        
+        .order-card { background: white; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed var(--border); }
+        .order-date { font-size: 11px; color: #64748b; font-weight: 700; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .badge-success { background: #d1fae5; color: #059669; }
+        .badge-pending { background: #fef3c7; color: #d97706; }
+
+        .order-body { display: flex; gap: 15px; margin-bottom: 15px; }
+        .order-img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
+        .order-detail { flex-grow: 1; }
+        .order-title { font-size: 14px; font-weight: 800; color: var(--text); margin: 0 0 5px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+        .order-price { font-size: 14px; font-weight: 900; color: var(--primary); }
+
+        .btn-akses { display: block; width: 100%; text-align: center; background: #10b981; color: white; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 14px; transition: 0.2s; }
+        .btn-akses:hover { opacity: 0.9; }
+        .btn-bayar { display: block; width: 100%; text-align: center; background: white; color: var(--text); border: 2px solid var(--border); padding: 10px; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 14px; }
+
+        #empty-state { text-align: center; padding: 40px 20px; display: none; }
+        #loading { text-align: center; padding: 40px; font-weight: 700; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <div class="header">
+            <div class="header-left">
+                <a href="index.html" class="back-btn"><i class="fa-solid fa-house"></i></a>
+                <h1 class="header-title">Dashboard</h1>
+            </div>
+            <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-power-off"></i> Keluar</button>
+        </div>
+
+        <div class="content">
+            <div class="user-card" id="user-card" style="display: none;">
+                <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="user-info">
+                    <h3 id="u-nama">Memuat...</h3>
+                    <p id="u-wa">-</p>
+                </div>
+            </div>
+
+            <h2 class="section-title">Aset Digital Saya</h2>
+            
+            <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Sinkronisasi Data...</div>
+            
+            <div id="empty-state">
+                <i class="fa-solid fa-box-open fa-3x" style="color: #cbd5e1; margin-bottom: 15px;"></i>
+                <h3 style="margin: 0 0 5px 0; color: var(--text);">Belum Ada Produk</h3>
+                <p style="font-size: 13px; color: #64748b; margin: 0;">Anda belum memiliki pesanan atau akses produk apapun.</p>
+                <a href="index.html" class="btn-akses" style="margin-top: 15px; background: var(--primary);">Jelajahi Katalog</a>
+            </div>
+
+            <div id="order-list"></div>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('theme_color')) {
+            document.documentElement.style.setProperty('--primary', localStorage.getItem('theme_color'));
+        }
+
+        const formatRp = (angka) => 'Rp ' + (angka || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        function logout() {
+            localStorage.removeItem('user_data');
+            sessionStorage.removeItem('user_email');
+            sessionStorage.removeItem('user_status');
+            window.location.href = 'login.html';
+        }
+
+        async function loadHistory() {
+            const userDataStr = localStorage.getItem('user_data');
+            if(!userDataStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = JSON.parse(userDataStr);
+            document.getElementById('u-nama').innerText = user.nama;
+            document.getElementById('u-wa').innerText = user.whatsapp;
+            document.getElementById('user-card').style.display = 'flex';
+
+            try {
+                const res = await fetch("/api/user/auth", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "history", whatsapp: user.whatsapp })
+                });
+                const response = await res.json();
+                
+                document.getElementById('loading').style.display = 'none';
+
+                if(response.status === "success" && response.data.length > 0) {
+                    let html = "";
+                    response.data.forEach(item => {
+                        let dateObj = new Date(item.created_at);
+                        let dateStr = isNaN(dateObj) ? '-' : dateObj.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
+                        
+                        let isSuccess = item.status === 'success';
+                        let badgeClass = isSuccess ? 'badge-success' : 'badge-pending';
+                        let badgeText = isSuccess ? 'LUNAS / AKTIF' : 'MENUNGGU PEMBAYARAN';
+                        
+                        let imgUrl = item.image_url || 'https://via.placeholder.com/150?text=Produk';
+                        let title = item.campaign_title || 'Produk Terhapus';
+                        
+                        // KONDISI TOMBOL: Jika sukses arahkan ke akses-pdf, jika pending arahkan ke invoice
+                        let actionBtn = isSuccess 
+                            ? `<a href="akses-pdf.html?id=${item.campaign_id}" class="btn-akses"><i class="fa-solid fa-unlock-keyhole"></i> Akses Produk Ini</a>`
+                            : `<a href="invoice.html?id=${item.id}" class="btn-bayar">Lanjutkan Pembayaran</a>`;
+
+                        html += `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span class="order-date">${dateStr} &bull; ${item.id}</span>
+                                <span class="badge ${badgeClass}">${badgeText}</span>
+                            </div>
+                            <div class="order-body">
+                                <img src="${imgUrl}" class="order-img">
+                                <div class="order-detail">
+                                    <h3 class="order-title">${title}</h3>
+                                    <div class="order-price">${formatRp(item.nominal)}</div>
+                                </div>
+                            </div>
+                            ${actionBtn}
+                        </div>`;
+                    });
+                    document.getElementById('order-list').innerHTML = html;
+                } else {
+                    document.getElementById('empty-state').style.display = 'block';
+                }
+            } catch (e) {
+                document.getElementById('loading').innerHTML = "<span style='color:red;'>Gagal memuat data. Periksa koneksi Anda.</span>";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadHistory);
+    </script>
+</body>
+</html>

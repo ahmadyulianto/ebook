@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Detail Produk Digital</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #00AAE7; --bg-body: #f1f5f9; --bg-app: #ffffff; --text-dark: #0f172a; --text-muted: #64748b; --blue-verified: #10b981; --border-color: #e2e8f0; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Nunito', sans-serif; background: var(--bg-body); margin: 0; padding: 0; display: flex; justify-content: center; -webkit-tap-highlight-color: transparent; }
+        .app-wrapper { width: 100%; max-width: 480px; background: var(--bg-app); min-height: 100vh; position: relative; box-shadow: 0 0 25px rgba(0,0,0,0.05); padding-bottom: 90px; }
+
+        /* HEADER DETAIL */
+        .header-detail { position: absolute; top: 0; left: 0; width: 100%; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; background: linear-gradient(to bottom, rgba(15,23,42,0.7), transparent); }
+        .btn-circle { width: 38px; height: 38px; background: rgba(255,255,255,0.95); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--text-dark); text-decoration: none; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+        .btn-circle:hover { transform: scale(1.05); }
+
+        /* HERO IMAGE */
+        .hero-img { width: 100%; height: 320px; background: #e2e8f0; position: relative; }
+        .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+        .hero-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 50px; background: linear-gradient(to top, white, transparent); }
+
+        /* CONTENT */
+        .content { padding: 25px 20px; background: white; border-top-left-radius: 25px; border-top-right-radius: 25px; margin-top: -30px; position: relative; z-index: 5; }
+        .category-badge { display: inline-block; padding: 4px 10px; background: color-mix(in srgb, var(--primary) 15%, white); color: var(--primary); font-size: 11px; font-weight: 800; border-radius: 6px; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .title { font-size: 20px; font-weight: 900; color: var(--text-dark); line-height: 1.4; margin: 0 0 15px 0; letter-spacing: -0.5px; }
+        
+        .org-box { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .org-avatar { width: 45px; height: 45px; background: var(--bg-body); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary); font-size: 20px; }
+        .org-name { font-size: 14px; font-weight: 800; color: var(--text-dark); margin-bottom: 2px;}
+        .org-verified { color: var(--blue-verified); font-size: 14px; margin-left: 4px; }
+
+        /* SALES STATS BOX */
+        .progress-box { padding: 20px; border-radius: 16px; border: 2px solid var(--border-color); margin-bottom: 30px; background: #fafafa; }
+        .stats-row { display: flex; justify-content: space-between; align-items: flex-start; }
+        .val-num { font-size: 24px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; margin-top: 4px;}
+        .val-target { font-size: 13px; color: var(--text-dark); font-weight: 800; background: #e2e8f0; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-top: 4px;}
+        
+        .stats-footer { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1; }
+        .stats-footer i { margin-right: 5px; color: var(--primary); }
+
+        /* STORY / DESKRIPSI */
+        .section-title { font-size: 16px; font-weight: 900; margin-bottom: 15px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;}
+        .story-content { font-size: 14px; line-height: 1.7; color: #475569; font-weight: 500; }
+        .story-content p { margin-top: 0; margin-bottom: 15px; }
+
+        /* FIXED BOTTOM BUTTON */
+        .bottom-action { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
+        .btn-donasi { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900; cursor: pointer; text-decoration: none; text-align: center; box-shadow: 0 4px 15px rgba(0, 170, 231, 0.3); transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .btn-donasi:active { transform: scale(0.98); }
+        
+        #loading { text-align: center; padding: 80px 20px; font-weight: 800; color: var(--text-muted); }
+        #error-msg { text-align: center; padding: 80px 20px; font-weight: 800; color: #ef4444; display: none; }
+        #content-wrapper { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <div id="loading"><i class="fa-solid fa-spinner fa-spin fa-2x" style="margin-bottom: 15px; color: var(--primary);"></i><br>Memuat Katalog Produk...</div>
+        <div id="error-msg"><i class="fa-solid fa-triangle-exclamation fa-2x" style="margin-bottom: 15px;"></i><br>Produk tidak ditemukan atau terjadi kesalahan.</div>
+
+        <div id="content-wrapper">
+            <div class="header-detail">
+                <a href="index.html" class="btn-circle"><i class="fa-solid fa-arrow-left"></i></a>
+                <a href="javascript:void(0)" onclick="shareProduct()" class="btn-circle"><i class="fa-solid fa-share-nodes"></i></a>
+            </div>
+
+            <div class="hero-img">
+                <img id="camp-img" src="" alt="Thumbnail Produk">
+                <div class="hero-overlay"></div>
+            </div>
+
+            <div class="content">
+                <div class="category-badge" id="camp-category">KATEGORI UMUM</div>
+                <h1 class="title" id="camp-title">Memuat Judul Produk...</h1>
+                
+                <div class="org-box">
+                    <div class="org-avatar"><i class="fa-solid fa-store"></i></div>
+                    <div>
+                        <div class="org-name"><span id="camp-org">Official Store</span> <i class="fa-solid fa-circle-check org-verified" title="Verified Creator"></i></div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Distributor Resmi</div>
+                    </div>
+                </div>
+
+                <div class="progress-box">
+                    <div class="stats-row">
+                        <div>
+                            <div style="font-size:11px; color:var(--text-muted); font-weight:800; text-transform: uppercase;">Harga Akses</div>
+                            <div class="val-num" id="camp-harga">Rp 0</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; color:var(--text-muted); font-weight:800; text-transform: uppercase;">Tipe File</div>
+                            <div class="val-target" id="camp-tipe">DIGITAL ASSET</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-footer">
+                        <div><i class="fa-solid fa-cart-shopping"></i> <span id="camp-terjual">0</span> Terjual</div>
+                        <div><i class="fa-solid fa-unlock-keyhole"></i> Akses Selamanya</div>
+                    </div>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Informasi Produk</h2>
+                <div class="story-content" id="camp-desc">
+                    Memuat deskripsi selengkapnya...
+                </div>
+            </div>
+
+            <div class="bottom-action">
+                <a href="#" id="btn-donasi-link" class="btn-donasi"><i class="fa-solid fa-bolt"></i> Beli Akses Sekarang</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const formatRp = (angka) => {
+            let numStr = angka.toString().replace(/[^,\d]/g, '');
+            let split = numStr.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+            if(ribuan){
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            return 'Rp ' + rupiah;
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const campId = urlParams.get('id');
+
+        function shareProduct() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.getElementById('camp-title').innerText,
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert("Link produk disalin ke clipboard!");
+            }
+        }
+
+        async function loadDetail() {
+            // Terapkan warna brand jika tersimpan di lokal
+            if (localStorage.getItem('theme_color')) {
+                document.documentElement.style.setProperty('--primary', localStorage.getItem('theme_color'));
+            }
+
+            if(!campId) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error-msg').style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/campaign?id=${campId}`);
+                if (!response.ok) throw new Error("Gagal mengambil data");
+                
+                const data = await response.json();
+
+                // Mapping Data Database ke UI Penjualan
+                let harga = parseInt(data.harga || data.target) || 0;
+                let terjual = parseInt(data.terjual) || 0;
+
+                // Masukkan data ke HTML
+                document.getElementById('camp-img').src = data.image_url;
+                document.getElementById('camp-title').innerText = data.title;
+                document.getElementById('camp-org').innerText = data.org || (localStorage.getItem('brand_name') || 'Official Store');
+                document.getElementById('camp-harga').innerText = formatRp(harga);
+                document.getElementById('camp-terjual').innerText = terjual;
+                
+                // Menampilkan Kategori & Tipe Produk jika ada
+                if(data.kategori) document.getElementById('camp-category').innerText = data.kategori;
+                if(data.tipe_produk) document.getElementById('camp-tipe').innerText = data.tipe_produk;
+                
+                // Render Deskripsi
+                let deskripsi = data.deskripsi || "Belum ada deskripsi mendetail untuk produk ini.";
+                document.getElementById('camp-desc').innerHTML = deskripsi.replace(/\n/g, '<br>');
+
+                // Setel link tombol checkout
+                document.getElementById('btn-donasi-link').href = `checkout.html?id=${data.id}`;
+
+                // Tampilkan konten
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content-wrapper').style.display = 'block';
+
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadDetail);
+    </script>
+</body>
+</html>

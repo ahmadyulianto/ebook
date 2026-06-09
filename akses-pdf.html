@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        // Pengecekan Login: Jika belum login, tendang ke halaman login
+        const isUser = sessionStorage.getItem('user_email');
+        const isAdmin = sessionStorage.getItem('adm_v10') === 'true' || localStorage.getItem('melimpah_admin_data') !== null;
+        if (!isUser && !isAdmin) { window.location.replace('login.html'); }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer=""></script>
+    <script src="https://unpkg.com/lucide@latest" defer=""></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akses Produk Digital</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-blue: #00AAE7;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+        }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--slate-50); color: var(--slate-900); margin: 0; overflow-x: hidden; }
+        
+        .bg-brand-blue { background-color: var(--brand-blue); }
+        .text-brand-blue { color: var(--brand-blue); }
+        .btn-primary { background-color: var(--brand-blue); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; justify-content: center; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .lms-container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        @media (min-width: 1024px) { .lms-container { grid-template-columns: 2.5fr 1fr; } }
+
+        .pdf-wrapper { background: white; border-radius: 1rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--slate-200); position: relative; }
+        
+        .pdf-custom-toolbar {
+            height: 55px; background: var(--slate-900); display: flex; align-items: center;
+            justify-content: space-between; padding: 0 1.25rem; color: white; font-weight: 700; font-size: 0.9rem;
+            border-bottom: 2px solid var(--brand-blue); position: relative; z-index: 10;
+        }
+
+        .pdf-view-box { position: relative; width: 100%; height: 750px; background: #525659; overflow: hidden; }
+        
+        .pdf-view-box iframe {
+            position: absolute; top: -56px; left: 0; width: 100%; height: calc(100% + 56px);
+            border: none; z-index: 1;
+        }
+
+        /* Container untuk produk Non-Ebook */
+        .non-pdf-box {
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem 1.5rem;
+            text-align: center;
+            height: 500px;
+        }
+        .non-pdf-icon {
+            font-size: 4rem;
+            color: var(--brand-blue);
+            margin-bottom: 1.5rem;
+            width: 80px;
+            height: 80px;
+        }
+        .non-pdf-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            margin-bottom: 0.5rem;
+        }
+        .non-pdf-desc {
+            font-size: 0.95rem;
+            color: var(--slate-700);
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        .sidebar-panel { display: flex; flex-direction: column; gap: 1.5rem; }
+        .info-card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--slate-200); }
+        
+        .upgrade-box {
+            background: linear-gradient(135deg, var(--slate-900) 0%, #1e293b 100%); color: white;
+            border-radius: 1rem; padding: 1.75rem; border-left: 5px solid var(--brand-blue);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-header { background: white; border-bottom: 1px solid #e2e8f0; padding: 1rem; position: sticky; top: 0; z-index: 100; }
+        .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+
+        #loading-overlay { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 3rem; height: 3rem; border: 4px solid #e0f7ff; border-top-color: var(--brand-blue); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 1rem; font-weight: bold; color: #64748b;">Membuka Akses Produk...</p>
+    </div>
+
+    <header class="nav-header">
+        <div class="nav-content">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="bg-brand-blue" style="padding: 0.5rem; border-radius: 0.5rem; color: white; display: flex;">
+                    <i data-lucide="monitor-play"></i>
+                </div>
+                <span class="dyn-site-name" style="font-weight: 900; font-size: 1.25rem;">Member Area</span>
+            </div>
+            <button onclick="window.location.href='pesanan-saya.html'" class="btn-primary" style="font-size: 0.875rem; background: var(--slate-900);">
+                <i data-lucide="arrow-left" style="width: 1rem; height: 1rem;"></i> Dashboard Saya
+            </button>
+        </div>
+    </header>
+
+    <main class="lms-container">
+        
+        <div class="pdf-wrapper">
+            <div class="pdf-custom-toolbar">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="file-text" id="toolbar-icon" style="color: var(--brand-blue); width: 1.2rem; height: 1.2rem;"></i>
+                    <span id="pdf-toolbar-title">Memuat File...</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; background: rgba(255,255,255,0.1); padding: 0.3rem 0.6rem; border-radius: 0.25rem;">
+                    <i data-lucide="lock" style="width: 10px; height: 10px; color: #10b981;"></i> Premium Access
+                </div>
+            </div>
+
+            <div class="pdf-view-box" id="pdf-view-box">
+                <iframe id="pdf-iframe" src="about:blank"></iframe>
+            </div>
+
+            <div class="non-pdf-box" id="non-pdf-box">
+                <i data-lucide="package" class="non-pdf-icon" id="non-pdf-icon-dynamic"></i>
+                <h2 class="non-pdf-title">Produk Digital Tersedia</h2>
+                <p class="non-pdf-desc">Ini bukan file dokumen interaktif (E-Book). Silakan gunakan tombol di menu samping untuk mendapatkan akses ke produk Anda secara langsung.</p>
+            </div>
+        </div>
+
+        <div class="sidebar-panel">
+            <div class="upgrade-box">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                    <i data-lucide="crown" style="color: #fbbf24; fill: #fbbf24;"></i>
+                    <h3 style="margin: 0; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px;">AKSES FILE</h3>
+                </div>
+                <p id="upgrade-desc" style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin: 0 0 1.5rem 0;">
+                    Memverifikasi lisensi kepemilikan Anda...
+                </p>
+                
+                <button type="button" onclick="handleDownloadOrUpgrade()" id="btn-action-pdf" class="btn-primary" style="width: 100%;">
+                    <i data-lucide="download"></i> DAPATKAN AKSES
+                </button>
+            </div>
+
+            <div class="info-card">
+                <h4 style="margin: 0 0 0.75rem 0; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; color: var(--slate-700);">Informasi Produk</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--slate-100); padding-bottom: 0.4rem;">
+                        <span style="color: #64748b;">Nama Produk</span>
+                        <strong id="info-product-name" style="text-align: right; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #64748b;">Tipe File</span>
+                        <span style="font-weight: 700; color: var(--brand-blue);" id="info-product-type">E-Book (PDF)</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let productData = {};
+        
+        const isAdminGlobal = sessionStorage.getItem('adm_v10') === 'true' || localStorage.getItem('melimpah_admin_data') !== null;
+        const isPremiumUser = sessionStorage.getItem('user_status') === 'premium' || isAdminGlobal; 
+
+        function applyBrandSettings(data) {
+            if(data.theme_primary_color) {
+                let themeStyle = document.getElementById('dynamic-theme');
+                if (!themeStyle) { themeStyle = document.createElement('style'); themeStyle.id = 'dynamic-theme'; document.head.appendChild(themeStyle); }
+                themeStyle.innerHTML = `:root { --brand-blue: ${data.theme_primary_color} !important; } .bg-brand-blue, .btn-primary { background-color: ${data.theme_primary_color} !important; } .text-brand-blue { color: ${data.theme_primary_color} !important; } .pdf-custom-toolbar { border-bottom-color: ${data.theme_primary_color} !important; }`;
+            }
+            if(data.brand_name) {
+                document.querySelectorAll('.dyn-site-name').forEach(el => { el.innerText = data.brand_name; });
+            }
+        }
+
+        async function verifyAndLoad() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) { 
+                document.getElementById('loading-overlay').style.display = 'none';
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Akses Ditolak',
+                    text: 'ID Produk tidak ditemukan atau link tidak valid.',
+                    confirmButtonColor: '#0f172a'
+                }).then(() => {
+                    window.location.replace('pesanan-saya.html');
+                });
+                return; 
+            }
+
+            try {
+                // LOGIKA BARU: Tembak langsung ke API Worker (tanpa SCRIPT_URL Google)
+                const [setRes, prodRes] = await Promise.all([
+                    fetch('/api/home').then(r => r.json()),
+                    fetch(`/api/campaign?id=${productId}`).then(r => r.json())
+                ]);
+
+                if (setRes && setRes.settings) applyBrandSettings(setRes.settings);
+                
+                // Cek apakah produk berhasil diambil dari Worker
+                if (prodRes && prodRes.id) {
+                    productData = prodRes;
+                    document.title = "Akses Produk - " + productData.title;
+                    document.getElementById('pdf-toolbar-title').innerText = productData.title;
+                    document.getElementById('info-product-name').innerText = productData.title;
+                    
+                    const tipeProduk = productData.tipe_produk ? productData.tipe_produk.toLowerCase() : 'ebook';
+
+                    if (tipeProduk === 'ebook' || tipeProduk === 'pdf') {
+                        document.getElementById('pdf-view-box').style.display = 'block';
+                        document.getElementById('non-pdf-box').style.display = 'none';
+                        document.getElementById('info-product-type').innerText = 'E-Book (PDF)';
+                        
+                        // KODE BARU UNTUK LINK FLIPBOOK PIHAK KETIGA
+                        if(productData.pdf_drive_id) {
+                            // 1. Ambil data link dari database
+                            let flipbookUrl = productData.pdf_drive_id;
+                            
+                            // 2. Mencegah error "web utama": Paksa tambah https:// jika admin lupa
+                            if (!flipbookUrl.startsWith('http')) {
+                                flipbookUrl = 'https://' + flipbookUrl;
+                            }
+                            
+                            // 3. Masukkan link murni ke dalam iframe
+                            document.getElementById('pdf-iframe').src = flipbookUrl;
+                            
+                        } else {
+                            document.getElementById('pdf-toolbar-title').innerText = "File belum disematkan";
+                            Swal.fire({ icon: 'info', title: 'File Kosong', text: 'Admin belum menyematkan file untuk produk ini.', confirmButtonColor: '#00AAE7' });
+                        }
+                        
+                    } else {
+                        // Tampilan untuk Non-Ebook (Software/Template/Video dll)
+                        document.getElementById('pdf-view-box').style.display = 'none';
+                        document.getElementById('non-pdf-box').style.display = 'flex';
+                        document.getElementById('info-product-type').innerText = 'Digital Asset / ' + tipeProduk.toUpperCase();
+                        
+                        document.getElementById('toolbar-icon').setAttribute('data-lucide', 'package');
+                    }
+                } else {
+                    throw new Error("Data produk gagal diambil dari database D1.");
+                }
+                
+                adjustActionButton();
+
+            } catch (err) { 
+                console.error(err); 
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: 'Gagal memuat produk: ' + err.message,
+                    confirmButtonColor: '#f43f5e'
+                });
+            } 
+            finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+                if(typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
+        function adjustActionButton() {
+            const btn = document.getElementById('btn-action-pdf');
+            const desc = document.getElementById('upgrade-desc');
+            
+            if (isPremiumUser) {
+                btn.innerHTML = `<i data-lucide="download"></i> BUKA AKSES / DOWNLOAD`;
+                btn.style.backgroundColor = '#10b981';
+                
+                if (isAdminGlobal) {
+                    desc.innerText = "Anda masuk sebagai Admin. Hak akses penuh telah diberikan otomatis untuk menguji file ini.";
+                } else {
+                    desc.innerText = "Lisensi Terverifikasi. Silakan klik tombol di bawah ini untuk mengakses atau mengunduh file produk Anda.";
+                }
+            } else {
+                btn.innerHTML = `<i data-lucide="arrow-up-circle"></i> BELI LISENSI SEKARANG`;
+            }
+            
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function handleDownloadOrUpgrade() {
+            if (isPremiumUser) {
+                if (productData.pdf_download_url) {
+                    // Coba buka link eksternal (Drive, Mega, Mediafire, dll)
+                    window.open(productData.pdf_download_url, '_blank');
+                } else if (productData.pdf_drive_id) {
+                    // Paksa download dari iframe ID yang ada
+                    window.open(`https://drive.google.com/uc?export=download&id=${productData.pdf_drive_id}`, '_blank');
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Ups!', text: 'Admin belum menyetel link akses/download untuk produk ini.', confirmButtonColor: '#0f172a' });
+                }
+            } else {
+                Swal.fire({
+                    title: 'Akses Terkunci 🔒',
+                    text: 'Sistem mendeteksi Anda belum memiliki lisensi untuk produk ini.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Beli Sekarang',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: window.theme_color || '#00AAE7',
+                    cancelButtonColor: '#64748b',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'checkout.html?id=' + (productData.id || ''); 
+                    }
+                });
+            }
+        }
+
+        window.onload = () => { verifyAndLoad(); };
+    </script>
+</body>
+</html>

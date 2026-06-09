@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Checkout Produk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --primary: #00AAE7; --bg: #f9fafb; --text: #111; --text-muted: #6b7280; --border: #e5e7eb; }
+        * { box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        body { background: var(--bg); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        .app-wrapper { width: 100%; max-width: 480px; background: white; min-height: 100vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); padding-bottom: 70px; overflow-x: hidden; }
+        
+        .header { padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); }
+        .back-btn { width: 36px; height: 36px; border-radius: 50%; background: #f3f4f6; display: flex; justify-content: center; align-items: center; color: var(--text); text-decoration: none; font-size: 16px; transition: 0.2s; border: none; cursor: pointer; }
+        .back-btn:hover { background: #e5e7eb; }
+        .header-title { font-size: 18px; font-weight: 800; color: var(--text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+
+        .content { padding: 25px 20px; flex-grow: 1; }
+        
+        .camp-summary { display: flex; gap: 15px; background: #f9fafb; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border); align-items: center;}
+        .camp-summary img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; border: 1px solid #eee; }
+        .camp-summary-info { display: flex; flex-direction: column; justify-content: center; flex-grow: 1; }
+        .camp-summary-title { font-size: 14px; font-weight: 800; color: var(--text); margin: 0 0 8px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+
+        .section-label { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 15px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-control { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 700; outline: none; transition: 0.2s; color: var(--text); background: white; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 170, 231, 0.1); }
+        
+        .price-display { background: color-mix(in srgb, var(--primary) 8%, white); border-color: color-mix(in srgb, var(--primary) 30%, white); color: var(--primary); font-size: 18px; display: flex; align-items: center; justify-content: space-between; }
+        .price-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+        
+        .method-select { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 700; color: var(--text); appearance: none; background: white url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23111%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 15px top 55%; background-size: 12px auto; outline: none; cursor: pointer;}
+
+        .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 10px; transition: 0.2s; box-shadow: 0 4px 15px rgba(0, 170, 231, 0.3); }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
+        
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div id="loading-overlay">
+        <i class="fa-solid fa-spinner fa-spin fa-2x" style="margin-bottom: 15px;"></i>
+        Menyiapkan Pesanan...
+    </div>
+
+    <div class="app-wrapper">
+        <div class="header">
+            <button class="back-btn" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i></button>
+            <h1 class="header-title">Checkout Pesanan</h1>
+        </div>
+
+        <div class="content">
+            <div class="camp-summary">
+                <img id="c-img" src="" alt="Thumbnail Produk">
+                <div class="camp-summary-info">
+                    <p style="font-size: 10px; color: var(--text-muted); font-weight: 700; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">Produk yang dibeli:</p>
+                    <h3 class="camp-summary-title" id="c-title">Memuat Info Produk...</h3>
+                    <span style="font-size: 11px; color: #10b981; font-weight: 800;"><i class="fa-solid fa-check-circle"></i> Akses Selamanya</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="section-label" style="margin-bottom: 8px;">Total Tagihan</label>
+                <div class="form-control price-display">
+                    <span class="price-label">Harga Produk</span>
+                    <strong id="display-harga">Rp 0</strong>
+                </div>
+                <input type="hidden" id="input-nominal" value="0">
+            </div>
+
+            <div class="form-group">
+                <label class="section-label" style="margin-bottom: 8px;">Pilih Metode Pembayaran</label>
+                <select id="input-metode" class="method-select">
+                    <option value="">Memuat metode...</option>
+                </select>
+            </div>
+
+            <div class="section-label" style="margin-top: 30px; border-top: 1px solid var(--border); padding-top: 20px;">Informasi Pemesan</div>
+            
+            <div class="form-group">
+                <input type="text" id="input-nama" class="form-control" placeholder="Nama Lengkap">
+            </div>
+            <div class="form-group">
+                <input type="number" id="input-wa" class="form-control" placeholder="Nomor WhatsApp Aktif">
+                <p style="font-size: 11px; color: var(--text-muted); margin: 6px 0 0 4px; font-weight: 600;">Link akses akan dikirimkan ke nomor ini.</p>
+            </div>
+            <div class="form-group">
+                <textarea id="input-doa" class="form-control" placeholder="Catatan pesanan (Opsional)" style="height: 90px; resize: none;"></textarea>
+            </div>
+
+            <button class="btn-submit" id="btn-checkout" onclick="prosesCheckout()">Lanjutkan Pembayaran</button>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const campId = urlParams.get('id');
+
+        let currentUser = null;
+        let hargaGlobal = 0;
+
+        if(!campId) { 
+            alert("ID Produk tidak valid."); 
+            window.location.href = "index.html"; 
+        }
+
+        const formatRp = (angka) => {
+            return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        };
+
+        async function initCheckout() {
+            if (localStorage.getItem('theme_color')) {
+                document.documentElement.style.setProperty('--primary', localStorage.getItem('theme_color'));
+            }
+
+            if(localStorage.getItem('user_data')) {
+                currentUser = JSON.parse(localStorage.getItem('user_data'));
+                try {
+                    const res = await fetch('/api/user/auth', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ action: 'profile', id: currentUser.id })
+                    });
+                    const d = await res.json();
+                    if(d.status === 'success') {
+                        currentUser = d.user;
+                    }
+                } catch(e) {}
+
+                document.getElementById('input-nama').value = currentUser.nama;
+                document.getElementById('input-wa').value = currentUser.whatsapp;
+            }
+
+            try {
+                const resCamp = await fetch(`/api/campaign?id=${campId}`);
+                if(!resCamp.ok) throw new Error();
+                const dataCamp = await resCamp.json();
+                
+                document.getElementById('c-title').innerText = dataCamp.title;
+                document.getElementById('c-img').src = dataCamp.image_url;
+                
+                hargaGlobal = parseInt(dataCamp.harga || dataCamp.target || 0);
+                document.getElementById('input-nominal').value = hargaGlobal;
+                
+                if (hargaGlobal === 0) {
+                    document.getElementById('display-harga').innerText = "GRATIS";
+                    document.getElementById('display-harga').style.color = "#10b981";
+                } else {
+                    document.getElementById('display-harga').innerText = formatRp(hargaGlobal);
+                }
+                
+            } catch(e) { 
+                alert("Gagal memuat detail produk."); 
+                return; 
+            }
+
+            try {
+                const resSet = await fetch("/api/home");
+                const dataSet = await resSet.json();
+                const s = dataSet.settings;
+
+                let options = "";
+                
+                if (hargaGlobal === 0) {
+                    options = `<option value="FREE">🎁 Klaim Akses Gratis (Instan)</option>`;
+                    document.getElementById('input-metode').disabled = true;
+                    document.getElementById('btn-checkout').innerText = "Dapatkan Akses Sekarang";
+                    document.getElementById('btn-checkout').style.backgroundColor = "#10b981";
+                } 
+                else {
+                    if (s.payment_system_mode === 'gateway') {
+                        // KODE KEMBALI MENGGUNAKAN "QRIS" SESUAI DASHBOARD BOS
+                        options += `<option value="QRIS">QRIS(Otomatis)</option>`;
+                        options += `<option value="BCAVA">BCA Virtual Account</option>`;
+                        options += `<option value="MANDIRIVA">Mandiri Virtual Account</option>`;
+                        options += `<option value="BRIVA">BRI Virtual Account</option>`;
+                        options += `<option value="BNIVA">BNI Virtual Account</option>`;
+                        options += `<option value="BSIVA">BSI Virtual Account</option>`;
+                        options += `<option value="OVO">OVO (Otomatis)</option>`;
+                        options += `<option value="DANA">DANA (Otomatis)</option>`;
+                        options += `<option value="SHOPEEPAY">ShopeePay (Otomatis)</option>`;
+                    } else {
+                        if (s.rekening_bca) options += `<option value="BCA">🏛️ Transfer BCA (Manual)</option>`;
+                        if (s.rekening_bri) options += `<option value="BRI">🏛️ Transfer BRI (Manual)</option>`;
+                        if (s.rekening_mandiri) options += `<option value="MANDIRI">🏛️ Transfer Mandiri (Manual)</option>`;
+                        if (s.rekening_bni) options += `<option value="BNI">🏛️ Transfer BNI (Manual)</option>`;
+                        if (s.rekening_bsi) options += `<option value="BSI">🏛️ Transfer BSI (Manual)</option>`;
+                    }
+                }
+                
+                document.getElementById('input-metode').innerHTML = options;
+            } catch (e) { }
+
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        async function prosesCheckout() {
+            let valNominal = document.getElementById('input-nominal').value;
+            const nom = valNominal === "" ? 0 : parseInt(valNominal);
+            
+            const metode = hargaGlobal === 0 ? 'FREE' : document.getElementById('input-metode').value;
+            const nama = document.getElementById('input-nama').value;
+            const wa = document.getElementById('input-wa').value;
+            const btn = document.getElementById('btn-checkout');
+
+            if(nom < 0 || isNaN(nom)) return alert("Harga produk tidak valid.");
+            if(!nama) return alert("Nama Lengkap harus diisi!");
+            if(!wa) return alert("Nomor WhatsApp harus diisi!");
+
+            btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Memproses...";
+            btn.disabled = true;
+
+            const payload = {
+                campaign_id: campId,
+                nama: nama,
+                whatsapp: wa,
+                doa: '',
+                nominal: nom,
+                metode_pembayaran: metode
+            };
+
+            try {
+                const res = await fetch("/api/checkout", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await res.json();
+                
+                // TANGKAP ERROR ASLI DARI API TRIPAY DI SINI
+                if (!res.ok || result.status === "error") {
+                    alert("Gagal Tripay: " + (result.message || "Pastikan API Key & Channel aktif"));
+                    btn.innerText = hargaGlobal === 0 ? "Dapatkan Akses Sekarang" : "Lanjutkan Pembayaran";
+                    btn.disabled = false;
+                    return;
+                }
+                
+                if (hargaGlobal === 0) {
+                    let cleanWa = wa.replace(/[^0-9]/g, '');
+                    sessionStorage.setItem('user_email', cleanWa);
+                    sessionStorage.setItem('user_status', 'premium'); 
+                    
+                    if(!localStorage.getItem('user_data')) {
+                            let tempUser = { id: cleanWa, nama: nama, whatsapp: cleanWa, saldo: 0 };
+                            localStorage.setItem('user_data', JSON.stringify(tempUser));
+                    }
+                    
+                    alert("Berhasil! Akses produk gratis telah ditambahkan ke akun Anda.");
+                    window.location.replace(`pesanan-saya.html`);
+                } 
+                else {
+                    window.location.replace(`invoice.html?id=${result.invoice_id}`);
+                }
+            } catch (e) {
+                alert("Gagal terhubung ke server. Silakan periksa koneksi.");
+                btn.innerText = hargaGlobal === 0 ? "Dapatkan Akses Sekarang" : "Lanjutkan Pembayaran";
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initCheckout);
+    </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Invoice Pembayaran</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --primary: #00AAE7; --bg: #f8fafc; --text: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --success: #10b981; --warning: #f59e0b;}
+        * { box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        body { background: var(--bg); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        .app-wrapper { width: 100%; max-width: 480px; background: white; min-height: 100vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        
+        .header { padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+        .header-title { font-size: 18px; font-weight: 800; color: var(--text); margin: 0; }
+        
+        .content { padding: 25px 20px; flex-grow: 1; background: var(--bg); }
+        
+        .card { background: white; border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px;}
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-success { background: #d1fae5; color: #059669; }
+
+        .invoice-id { font-size: 13px; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; }
+        .product-title { font-size: 16px; font-weight: 800; color: var(--text); margin: 0 0 20px 0; line-height: 1.4; }
+        
+        .amount-box { background: color-mix(in srgb, var(--primary) 5%, white); border: 1px dashed var(--primary); padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
+        .amount-label { font-size: 12px; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
+        .amount-value { font-size: 28px; font-weight: 900; color: var(--primary); }
+
+        .instruction-title { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
+        
+        /* Box Pembayaran */
+        .pay-box { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+        .pay-method { font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 15px; text-transform: uppercase; }
+        
+        .va-number { font-size: 24px; font-weight: 900; letter-spacing: 2px; color: var(--text); background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px; word-break: break-all; }
+        
+        .qr-image { width: 220px; height: 220px; margin: 0 auto 15px auto; background: white; padding: 10px; border-radius: 12px; border: 1px solid var(--border); display: none;}
+        .qr-image img { width: 100%; height: 100%; object-fit: contain; }
+
+        .btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.2s; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px;}
+        .btn:hover { background: color-mix(in srgb, var(--primary) 80%, black); }
+        .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--bg); }
+
+        .note-text { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 20px; font-weight: 600; line-height: 1.5; }
+        
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div id="loading-overlay">
+        <i class="fa-solid fa-spinner fa-spin fa-2x" style="margin-bottom: 15px;"></i>
+        Memuat Halaman Invoice...
+    </div>
+
+    <div class="app-wrapper">
+        <div class="header">
+            <h1 class="header-title">Detail Tagihan</h1>
+            <a href="pesanan-saya.html" style="color: var(--primary); text-decoration: none; font-weight: 800; font-size: 14px;">Tutup</a>
+        </div>
+
+        <div class="content" id="invoice-content" style="display: none;">
+            <div class="card">
+                <div id="status-badge" class="status-badge status-pending">Menunggu Pembayaran</div>
+                <div class="invoice-id" id="inv-id">INV-XXX</div>
+                <h2 class="product-title" id="inv-title">Nama Produk</h2>
+                
+                <div class="amount-box">
+                    <div class="amount-label">Total Tagihan</div>
+                    <div class="amount-value" id="inv-amount">Rp 0</div>
+                </div>
+            </div>
+
+            <div class="card" id="card-instruction">
+                <div class="instruction-title"><i class="fa-solid fa-wallet"></i> Instruksi Pembayaran</div>
+                
+                <div class="pay-box">
+                    <div class="pay-method" id="pay-method-name">Metode Pembayaran</div>
+                    
+                    <div id="area-va" style="display: none;">
+                        <p style="font-size: 12px; color: var(--text-muted); font-weight: 700; margin-bottom: 8px;">Nomor Virtual Account / Rekening:</p>
+                        <div class="va-number" id="pay-code-text">-</div>
+                        <button class="btn btn-outline" id="btn-copy" onclick="copyToClipboard()"><i class="fa-regular fa-copy"></i> Salin Nomor</button>
+                    </div>
+
+                    <div id="area-qr" class="qr-image">
+                        <img id="qr-img-src" src="" alt="QR Code Barcode">
+                    </div>
+
+                    <div id="area-ewallet" style="display: none; padding: 10px 0;">
+                        <p style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 15px;">Klik tombol di bawah ini untuk melanjutkan pembayaran otomatis via Aplikasi.</p>
+                        <a href="#" id="btn-pay-ewallet" target="_blank" class="btn"><i class="fa-solid fa-mobile-screen"></i> Buka Aplikasi Pembayaran</a>
+                    </div>
+                </div>
+
+                <p class="note-text" id="note-pending">Harap lakukan pembayaran sesuai dengan rincian di atas. Status transaksi Anda akan divalidasi secara otomatis setelah dana diterima server.</p>
+                <p class="note-text" id="note-success" style="display: none; color: var(--success);"><i class="fa-solid fa-circle-check"></i> Pembayaran sukses dikonfirmasi! Anda telah mendapatkan akses penuh ke produk digital.</p>
+                
+                <a href="pesanan-saya.html" class="btn" id="btn-akses" style="display: none; margin-top: 20px;"><i class="fa-solid fa-box-open"></i> Akses File Produk</a>
+                <button class="btn" id="btn-cek" onclick="window.location.reload()"><i class="fa-solid fa-rotate-right"></i> Cek Status Transaksi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const invId = urlParams.get('id');
+
+        if(!invId) { window.location.href = "index.html"; }
+
+        const formatRp = (angka) => {
+            return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        };
+
+        const isHttpUrl = (value) => /^https?:\/\//i.test(value || "");
+        const isImageUrl = (value) => /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(value || "") || /^data:image\//i.test(value || "");
+        const getQrImageSrc = (value) => {
+            if (!value) return "";
+            if (isImageUrl(value)) return value;
+            return `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=12&data=${encodeURIComponent(value)}`;
+        };
+        const showQrImage = (value) => {
+            const qrImg = document.getElementById('qr-img-src');
+            const fallbackSrc = getQrImageSrc(value);
+            qrImg.onerror = () => {
+                if (qrImg.src !== fallbackSrc) {
+                    qrImg.onerror = null;
+                    qrImg.src = fallbackSrc;
+                }
+            };
+            qrImg.src = isHttpUrl(value) ? value : fallbackSrc;
+            document.getElementById('area-qr').style.display = 'block';
+        };
+
+        let copyText = "";
+
+        async function loadInvoice() {
+            try {
+                const res = await fetch(`/api/invoice?id=${invId}`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                
+                if (!data || !data.id) {
+                    alert("Invoice tidak ditemukan.");
+                    window.location.href = "index.html";
+                    return;
+                }
+
+                if (data.payment_info && data.payment_info.theme_primary_color) {
+                    document.documentElement.style.setProperty('--primary', data.payment_info.theme_primary_color);
+                }
+
+                document.getElementById('inv-id').innerText = data.id;
+                document.getElementById('inv-title').innerText = data.campaign_title || 'Top Up Saldo Akun';
+                
+                const totalAmount = parseInt(data.nominal) + parseInt(data.fee || 0);
+                document.getElementById('inv-amount').innerText = formatRp(totalAmount);
+                document.getElementById('pay-method-name').innerText = data.metode_pembayaran;
+
+                const statusBadge = document.getElementById('status-badge');
+                
+                // STATUS JIKA SUDAH SUKSES / LUNAS
+                if (data.status === 'success' || data.status === 'LUNAS') {
+                    statusBadge.innerText = "SUKSES / LUNAS";
+                    statusBadge.className = "status-badge status-success";
+                    document.getElementById('card-instruction').style.border = "2px solid var(--success)";
+                    
+                    document.getElementById('area-va').style.display = 'none';
+                    document.getElementById('area-qr').style.display = 'none';
+                    document.getElementById('area-ewallet').style.display = 'none';
+                    document.getElementById('pay-method-name').innerText = "Akses Terbuka";
+                    
+                    document.getElementById('btn-cek').style.display = 'none';
+                    document.getElementById('note-pending').style.display = 'none';
+                    document.getElementById('note-success').style.display = 'block';
+                    document.getElementById('btn-akses').style.display = 'flex';
+                } 
+                // STATUS JIKA MASIH PENDING (TAMPILKAN DATA TRIPAY LANGSUNG)
+                else {
+                    let metode = (data.metode_pembayaran || "").toUpperCase();
+                    let qrString = data.qr_string || "";
+                    let payCode = data.pay_code || "";
+                    let ewalletMethods = ["OVO", "DANA", "SHOPEEPAY", "SHOPEE", "LINKAJA", "ASTRAPAY"];
+                    let isEwallet = ewalletMethods.some(m => metode.includes(m));
+
+                    // PENGEMBALIAN UTAMA: JIKA METODE ADALAH QRIS, RENDER BARCODE LANGSUNG DI HALAMAN INI
+                    if (metode.includes("QRIS")) {
+                        if (qrString !== "") {
+                            showQrImage(qrString);
+                        } else {
+                            document.getElementById('area-va').style.display = 'block';
+                            document.getElementById('pay-code-text').innerText = "Barcode Sedang Di-generate";
+                        }
+                    } 
+                    // JIKA METODE E-WALLET MEMPUNYAI CHECKOUT URL DARI TRIPAY
+                    else if (isEwallet && qrString !== "" && isHttpUrl(qrString)) {
+                        document.getElementById('area-ewallet').style.display = 'block';
+                        document.getElementById('btn-pay-ewallet').href = qrString;
+                    }
+                    // BEBERAPA CHANNEL E-WALLET MENGEMBALIKAN QR STRING, TAMPILKAN SEBAGAI BARCODE
+                    else if (isEwallet && qrString !== "") {
+                        showQrImage(qrString);
+                    }
+                    // JIKA METODE VIRTUAL ACCOUNT (BCAVA, BRIVA, MANDIRIVA, DLL) ATAU PAYCODE ADA
+                    else if (payCode !== "") {
+                        document.getElementById('area-va').style.display = 'block';
+                        document.getElementById('pay-code-text').innerText = payCode;
+                        copyText = payCode;
+                    } 
+                    // JIKA METODE ADALAH REDIRECT LINK (E-WALLET JALUR KHUSUS)
+                    else if (qrString !== "" && isHttpUrl(qrString)) {
+                        document.getElementById('area-ewallet').style.display = 'block';
+                        document.getElementById('btn-pay-ewallet').href = qrString;
+                    }
+                    // FALLBACK UNTUK TRANSFER BANK MANUAL
+                    else {
+                        document.getElementById('area-va').style.display = 'block';
+                        let rekNo = "Hubungi Admin";
+                        if (data.payment_info) {
+                            if (metode === 'BCA') rekNo = data.payment_info.rekening_bca;
+                            else if (metode === 'BRI') rekNo = data.payment_info.rekening_bri;
+                            else if (metode === 'MANDIRI') rekNo = data.payment_info.rekening_mandiri;
+                            else if (metode === 'BNI') rekNo = data.payment_info.rekening_bni;
+                            else if (metode === 'BSI') rekNo = data.payment_info.rekening_bsi;
+                        }
+                        document.getElementById('pay-code-text').innerText = rekNo;
+                        copyText = rekNo;
+                    }
+                }
+
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('invoice-content').style.display = 'block';
+
+            } catch(e) {
+                console.error(e);
+                alert("Gagal memuat rincian invoice.");
+                window.location.href = "index.html";
+            }
+        }
+
+        function copyToClipboard() {
+            if(!copyText || copyText === "Hubungi Admin") return;
+            navigator.clipboard.writeText(copyText).then(() => {
+                const btn = document.getElementById('btn-copy');
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin Nomor';
+                }, 2000);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", loadInvoice);
+    </script>
+</body>
+</html>

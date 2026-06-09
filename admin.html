@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Premium Digital Area</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --brand-blue: #00AAE7; --brand-blue-hover: #0092c7; --dark: #0f172a; --bg: #f8fafc; --white: #ffffff; --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1; --slate-400: #94a3b8; --slate-500: #64748b; --slate-600: #475569; --slate-700: #334155; --slate-800: #1e293b; --blue-50: #f0f9ff; --blue-100: #e0f2fe; --danger: #ef4444; --success: #10b981; }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--slate-700); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        #login-screen { position: fixed; inset: 0; background: var(--slate-100); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+        .login-box { background: var(--white); padding: 40px 30px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--slate-200); }
+        .login-logo { display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: var(--blue-50); color: var(--brand-blue); border-radius: 12px; margin-bottom: 20px; font-size: 24px; }
+        .login-box h2 { margin-bottom: 25px; color: var(--dark); font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--slate-500); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 12px 16px; border: 1px solid var(--slate-300); border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; font-weight: 600; color: var(--slate-800); background: white; appearance: auto; }
+        .form-control:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px var(--blue-50); }
+        .btn { width: 100%; padding: 12px; background: var(--brand-blue); color: var(--white); border: none; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 10px; }
+        .btn:hover { background: var(--brand-blue-hover); }
+
+        #dashboard-screen { display: none; height: 100vh; width: 100vw; overflow: hidden; background: var(--bg); }
+        .sidebar { width: 260px; background: var(--white); height: 100%; display: flex; flex-direction: column; border-right: 1px solid var(--slate-200); transition: transform 0.3s ease; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid var(--slate-100); display: flex; align-items: center; gap: 10px; }
+        .sidebar-icon { background: var(--brand-blue); color: white; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; border-radius: 8px; font-size: 14px; }
+        .sidebar-title { font-size: 18px; font-weight: 900; color: var(--slate-800); letter-spacing: -0.5px; line-height: 1.2; }
+        .sidebar-subtitle { font-size: 11px; font-weight: 600; color: var(--slate-500); }
+        .nav-menu { flex-grow: 1; padding: 20px 15px; overflow-y: auto; list-style: none; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 10px 15px; color: var(--slate-600); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: 0.2s; cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; }
+        .nav-link i { font-size: 16px; width: 20px; text-align: center; color: var(--slate-400); transition: 0.2s; }
+        .nav-link:hover { background: var(--slate-50); color: var(--brand-blue); }
+        .nav-link:hover i { color: var(--brand-blue); }
+        .nav-link.active { background: var(--blue-50); color: var(--brand-blue); font-weight: 700; }
+        .nav-link.active i { color: var(--brand-blue); }
+        .sidebar-footer { padding: 20px 15px; border-top: 1px solid var(--slate-100); display: flex; flex-direction: column; gap: 10px; }
+        .btn-home-link { display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: var(--slate-600); text-decoration: none; font-weight: 600; font-size: 13px; transition: 0.2s; border-radius: 8px; }
+        .btn-home-link:hover { color: var(--brand-blue); background: var(--slate-50); }
+        .btn-logout { display: flex; align-items: center; gap: 10px; padding: 10px 15px; color: var(--slate-600); text-decoration: none; font-weight: 600; font-size: 13px; transition: 0.2s; border-radius: 8px; background: transparent; border: none; cursor: pointer; width: 100%; text-align: left; }
+        .btn-logout:hover { color: var(--danger); background: #fef2f2; }
+
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .topbar { background: var(--white); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--slate-200); position: sticky; top: 0; z-index: 50; }
+        .topbar-left { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle { background: transparent; border: 1px solid var(--slate-200); padding: 6px 10px; border-radius: 6px; font-size: 18px; color: var(--slate-600); cursor: pointer; display: none; }
+        .page-title { font-size: 20px; font-weight: 800; color: var(--slate-800); margin: 0; letter-spacing: -0.5px; }
+        .btn-add { background: var(--brand-blue); color: var(--white); width: auto; padding: 10px 20px; display: flex; align-items: center; gap: 8px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 170, 231, 0.2); }
+        .btn-add:hover { background: var(--brand-blue-hover); transform: translateY(-1px); }
+        .btn-export { background: var(--white); color: var(--success); border: 1px solid #a7f3d0; width: auto; padding: 10px 20px; display: none; align-items: center; gap: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .btn-export:hover { background: #ecfdf5; border-color: var(--success); }
+
+        .content-body { padding: 30px; overflow-y: auto; flex-grow: 1; }
+        .table-container { background: var(--white); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-x: auto; border: 1px solid var(--slate-200); position: relative; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--slate-100); font-size: 14px; }
+        th { background: var(--white); font-weight: 800; color: var(--slate-500); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; border-bottom: 2px solid var(--slate-100); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: var(--slate-50); }
+        .td-text { color: var(--slate-700); font-weight: 500; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .sticky-col-right { position: sticky; right: 0; background: var(--white); z-index: 2; box-shadow: -4px 0 8px -2px rgba(0,0,0,0.05); }
+        th.sticky-col-right { z-index: 3; }
+        tr:hover .sticky-col-right { background: var(--slate-50); }
+
+        .action-btns { display: flex; gap: 8px; }
+        .btn-icon { width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; border-radius: 6px; border: 1px solid var(--slate-200); background: var(--white); color: var(--slate-500); cursor: pointer; transition: 0.2s; }
+        .btn-icon.edit:hover { border-color: var(--brand-blue); color: var(--brand-blue); background: var(--blue-50); }
+        .btn-icon.delete:hover { border-color: var(--danger); color: var(--danger); background: #fef2f2; }
+        .btn-icon.acc { border-color: #a7f3d0; color: var(--success); background: #ecfdf5; }
+        .btn-icon.acc:hover { background: #d1fae5; border-color: var(--success); }
+
+        /* ADVANCED SETTINGS UI */
+        .setting-section-card { background: var(--white); border-radius: 12px; border: 1px solid var(--slate-200); margin-bottom: 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); overflow: hidden; }
+        .setting-section-header { padding: 16px 20px; background: var(--slate-50); border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--slate-800); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .setting-section-header i { color: var(--brand-blue); font-size: 16px; }
+        .setting-section-body { padding: 25px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .setting-section-body { grid-template-columns: 1fr; } }
+        .setting-section-body .dynamic-field { margin-bottom: 0; }
+
+        #modal { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); padding: 20px; }
+        .modal-content { background: var(--white); padding: 30px; border-radius: 16px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--slate-200); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--slate-100); }
+        .modal-header h2 { font-size: 20px; font-weight: 800; color: var(--slate-800); letter-spacing: -0.5px; }
+        .close-modal { cursor: pointer; font-size: 20px; color: var(--slate-400); transition: 0.2s; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; border-radius: 8px; }
+        .close-modal:hover { background: var(--slate-100); color: var(--danger); }
+        .dynamic-field { margin-bottom: 20px; }
+        .dynamic-field label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 800; color: var(--slate-600); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Modifikasi Form Control untuk Datalist (Arrow UI dropdown) */
+        input::-webkit-calendar-picker-indicator { display: none !important; }
+        input[list]::-webkit-calendar-picker-indicator { display: block !important; opacity: 0.6; cursor: pointer; }
+        
+        .upload-group { display: flex; align-items: stretch; width: 100%; border-radius: 8px; border: 1px solid var(--slate-300); overflow: hidden; background: var(--white); transition: 0.2s; }
+        .upload-group:focus-within { border-color: var(--brand-blue); box-shadow: 0 0 0 3px var(--blue-50); }
+        .upload-group input[type="text"] { flex-grow: 1; border: none; padding: 12px 16px; outline: none; font-size: 14px; color: var(--slate-800); font-weight: 500; background: transparent; }
+        .upload-group .btn-upload { background: var(--slate-50); color: var(--slate-600); border: none; border-left: 1px solid var(--slate-300); padding: 0 20px; cursor: pointer; transition: 0.2s; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .upload-group .btn-upload:hover { background: var(--slate-100); color: var(--brand-blue); }
+        #loading { text-align: center; padding: 60px; font-size: 15px; font-weight: 600; color: var(--slate-500); display: none; }
+        .form-textarea { min-height: 120px; resize: vertical; line-height: 1.6; font-family: inherit; }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .sidebar { position: fixed; transform: translateX(-100%); box-shadow: 5px 0 25px rgba(0,0,0,0.1); }
+            .sidebar.open { transform: translateX(0); }
+            .topbar { padding: 15px 20px; }
+            .content-body { padding: 20px; }
+            .page-title { font-size: 18px; }
+            .btn-add span, .btn-export span { display: none; } 
+            .btn-add, .btn-export { padding: 10px; justify-content: center; }
+            #sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15,23,42,0.5); z-index: 99; backdrop-filter: blur(2px); }
+            #sidebar-overlay.open { display: block; }
+            .upload-group .btn-upload span { display: none; } 
+            .upload-group .btn-upload { padding: 0 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
+            <h2>Admin Control Panel</h2>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" class="form-control" placeholder="Masukkan username" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••">
+            </div>
+            <button class="btn" onclick="doLogin()">Masuk Dashboard</button>
+            <p id="login-err" style="color:var(--danger); font-size:13px; font-weight:600; margin-top:15px; display:none;"></p>
+        </div>
+    </div>
+
+    <div id="dashboard-screen">
+        <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-icon"><i class="fa-solid fa-layer-group"></i></div>
+                <div>
+                    <div class="sidebar-title">Sistem</div>
+                    <div class="sidebar-subtitle">Control Panel v2.5</div>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <button class="nav-link active" onclick="switchTab('campaigns', 'Katalog Produk Digital', this)">
+                        <i class="fa-solid fa-box"></i> Katalog Produk
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick="switchTab('banners', 'Slider Banner Beranda', this)">
+                        <i class="fa-regular fa-images"></i> Banner Beranda
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick="switchTab('donations', 'Validasi Transaksi Member', this)">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> Validasi Transaksi
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick="switchTab('news', 'Artikel & Pengumuman', this)">
+                        <i class="fa-solid fa-newspaper"></i> Kelola Artikel
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick="switchTab('users', 'Database Member Terdaftar', this)">
+                        <i class="fa-solid fa-users"></i> Database Member
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick="switchTab('settings', 'Konfigurasi Sistem Global', this)">
+                        <i class="fa-solid fa-gear"></i> Master Settings
+                    </button>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="index.html" target="_blank" class="btn-home-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> Hubungi Website</a>
+                <a href="tentang.html" target="_blank" class="btn-home-link"><i class="fa-solid fa-circle-info"></i> Tentang Kami</a>
+                <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar Sistem</button>
+            </div>
+        </aside>
+
+        <main class="main-wrapper">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars-staggered"></i></button>
+                    <h1 class="page-title" id="page-title">Katalog Produk Digital</h1>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-export" id="btn-export" onclick="downloadExcel()">
+                        <i class="fa-solid fa-file-csv"></i> <span>Export Excel</span>
+                    </button>
+                    <button class="btn-add" id="btn-add-global" onclick="openModal('add')">
+                        <i class="fa-solid fa-plus"></i> <span>Tambah Data</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content-body">
+                <div id="loading"><i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i> Menghubungkan ke Cloudflare D1...</div>
+                <div id="table-container"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Form Data</h2>
+                <div class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div id="dynamic-form"></div>
+            <button class="btn" id="btn-save-modal" style="margin-top:10px; font-size: 15px; padding: 14px;" onclick="saveData()">Simpan Perubahan</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "/api/admin"; 
+        let currentTable = 'campaigns'; 
+        let currentHeaders = [];
+        let currentData = [];
+        let currentEditId = null; 
+        let ikPrivateKey = ""; 
+
+        window.onload = () => {
+            if(localStorage.getItem("admin_logged") === "true" && localStorage.getItem("admin_token")) {
+                document.getElementById('login-screen').style.display = "none";
+                document.getElementById('dashboard-screen').style.display = "flex";
+                fetchSettings(); 
+                loadData();
+            } else {
+                localStorage.removeItem("admin_logged");
+                localStorage.removeItem("admin_token");
+                localStorage.removeItem("admin_username");
+            }
+        };
+
+        function getAdminHeaders() {
+            const token = localStorage.getItem("admin_token");
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers.Authorization = "Basic " + token;
+            return headers;
+        }
+
+        async function adminFetch(payload) {
+            const res = await fetch(API_URL, { method: 'POST', headers: getAdminHeaders(), body: JSON.stringify(payload) });
+            if (res.status === 401) {
+                localStorage.removeItem("admin_logged");
+                localStorage.removeItem("admin_token");
+                localStorage.removeItem("admin_username");
+                alert("Sesi admin berakhir. Silakan login ulang.");
+                location.reload();
+                throw new Error("Unauthorized");
+            }
+            return res;
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('open'); }
+
+        function switchTab(tableName, title, element) {
+            currentTable = tableName;
+            document.getElementById('page-title').innerText = title;
+            document.getElementById('btn-export').style.display = (tableName === 'donations') ? 'flex' : 'none';
+            document.getElementById('btn-add-global').style.display = (tableName === 'settings' || tableName === 'donations' || tableName === 'users') ? 'none' : 'flex';
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            if(window.innerWidth <= 768) toggleSidebar();
+            loadData();
+        }
+
+        function downloadExcel() {
+            if (currentData.length === 0) return alert("Tidak ada data untuk diekspor!");
+            let csvRows = [];
+            csvRows.push(currentHeaders.map(h => `"${h.replace('_', ' ')}"`).join(','));
+            currentData.forEach(row => {
+                let values = currentHeaders.map(header => {
+                    let val = row[header] === null || row[header] === undefined ? "" : row[header].toString();
+                    return `"${val.replace(/"/g, '""')}"`;
+                });
+                csvRows.push(values.join(','));
+            });
+            let blob = new Blob(["\uFEFF" + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Laporan_Transaksi_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        async function doLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const err = document.getElementById('login-err');
+            err.style.display = "block"; err.style.color = "var(--slate-600)"; err.innerText = "Memeriksa...";
+            try {
+                const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: "login", username: u, password: p }) });
+                const data = await res.json();
+                if(data.status === "success") {
+                    localStorage.setItem("admin_logged", "true");
+                    localStorage.setItem("admin_token", data.token || btoa(u + ":" + p));
+                    localStorage.setItem("admin_username", data.username || u);
+                    location.reload();
+                } else { err.style.color = "var(--danger)"; err.innerText = data.message; }
+            } catch(e) { err.style.color = "var(--danger)"; err.innerText = "Gagal terhubung ke server."; }
+        }
+
+        function logout() {
+            localStorage.removeItem("admin_logged");
+            localStorage.removeItem("admin_token");
+            localStorage.removeItem("admin_username");
+            location.reload();
+        }
+
+        async function fetchSettings() {
+            try {
+                const res = await adminFetch({ action: "read", table: "settings" });
+                const r = await res.json();
+                if(r.status === "success" && r.data.length > 0) { r.data.forEach((row) => { if(row.key_name === "imagekit_private_key") ikPrivateKey = row.key_value; }); }
+            } catch(e) {}
+        }
+
+        async function loadData() {
+            document.getElementById('table-container').innerHTML = "";
+            document.getElementById('loading').style.display = "block";
+            try {
+                const res = await adminFetch({ action: "read", table: currentTable });
+                const r = await res.json();
+                if(r.status === "success") { 
+                    currentHeaders = r.headers; currentData = r.data; 
+                    if(currentTable === 'settings') renderSettings(r.data);
+                    else renderTable(); 
+                } 
+                else { document.getElementById('table-container').innerHTML = `<p style='padding:40px;text-align:center;color:var(--slate-500);font-weight:600;'>Data belum tersedia atau tabel kosong.</p>`; }
+            } catch(e) { document.getElementById('table-container').innerHTML = `<p style='padding:40px;text-align:center;color:var(--danger);font-weight:600;'>Gagal mengambil data dari database.</p>`; }
+            document.getElementById('loading').style.display = "none";
+        }
+
+        // --- RENDER MASTER SETTINGS SEKTORAL SUPER CANGGIH ---
+        function renderSettings(data) {
+            // Struktur Grup Sektoral
+            const sections = [
+                { id: 'sec_brand', title: 'General & Branding Platform', icon: 'fa-display', fields: [
+                    {key: 'brand_name', label: 'Nama Brand / Website'}, 
+                    {key: 'brand_logo_url', label: 'Logo Header Website', isImage: true},
+                    {key: 'website_url', label: 'URL Website Utama'},
+                    {key: 'theme_primary_color', label: 'Warna Tema Utama (Hex Code)'},
+                    {key: 'banner_promo_url', label: 'URL Banner Promosi (Etalase Bawah)', isImage: true},
+                    {key: 'admin_whatsapp', label: 'Nomor WhatsApp CS Admin'},
+                    {key: 'admin_email', label: 'Email Resmi CS Admin'},
+                    {key: 'about_deskripsi', label: 'Deskripsi Profil Toko (Tentang Kami)', isTextarea: true},
+                    {key: 'about_alamat', label: 'Alamat Kantor/Toko', isTextarea: true},
+                    {key: 'syarat_ketentuan', label: 'Teks Syarat & Ketentuan', isTextarea: true},
+                    {key: 'kebijakan_privasi', label: 'Teks Kebijakan Privasi', isTextarea: true}
+                ]},
+                { id: 'sec_admin_access', title: 'Akses Login Admin', icon: 'fa-user-lock', fields: [
+                    {key: 'admin_username', label: 'Username Admin', isCredential: true, defaultValue: 'mimin'},
+                    {key: 'admin_password', label: 'Password Admin Baru', type: 'password', isCredential: true, isSecret: true, placeholder: 'Kosongkan jika tidak diganti'}
+                ]},
+                { id: 'sec_gateway', title: 'Tripay Payment Gateway Integration', icon: 'fa-credit-card', fields: [
+                    {key: 'payment_system_mode', label: 'Mode Pembayaran Utama', type: 'select', options: [{val: 'manual', text: 'Transfer Manual Bank'}, {val: 'gateway', text: 'Payment Gateway (Tripay)'}]}, 
+                    {key: 'tripay_mode', label: 'Tripay Environment Mode', type: 'select', options: [{val: 'sandbox', text: 'Sandbox (Testing)'}, {val: 'production', text: 'Production (Live)'}]},
+                    {key: 'tripay_merchant_code', label: 'Tripay Merchant Code'},
+                    {key: 'tripay_api_key', label: 'Tripay API Key'},
+                    {key: 'tripay_private_key', label: 'Tripay Private Key'}
+                ]},
+                { id: 'sec_bank', title: 'Rekening Bank Transfer Manual', icon: 'fa-building-columns', fields: [
+                    {key: 'rekening_bca', label: 'Nomor Rekening BCA (Contoh: 123456 a/n Nama)'}, 
+                    {key: 'rekening_bri', label: 'Nomor Rekening BRI (Contoh: 123456 a/n Nama)'}, 
+                    {key: 'rekening_mandiri', label: 'Nomor Rekening Mandiri (Contoh: 123456 a/n Nama)'}, 
+                    {key: 'rekening_bni', label: 'Nomor Rekening BNI (Contoh: 123456 a/n Nama)'}, 
+                    {key: 'rekening_bsi', label: 'Nomor Rekening BSI (Contoh: 123456 a/n Nama)'}
+                ]},
+                { id: 'sec_wa', title: 'WhatsApp Automation Notification Kit', icon: 'fa-comments', fields: [
+                    {key: 'wa_gateway_provider', label: 'WhatsApp Provider Gateway', type: 'select', options: [{val: 'fonnte', text: 'Fonnte'}, {val: 'starsender', text: 'Starsender'}]}, 
+                    {key: 'fonnte_token', label: 'Token API Fonnte'}, 
+                    {key: 'starsender_token', label: 'Token API Starsender'}
+                ]},
+                { id: 'sec_api', title: 'Storage & Social Media Links', icon: 'fa-key', fields: [
+                    {key: 'imagekit_private_key', label: 'ImageKit Private Key (Upload File Assets)'}, 
+                    {key: 'link_facebook', label: 'URL Fanspage Facebook'}, 
+                    {key: 'link_instagram', label: 'URL Akun Instagram'},
+                    {key: 'link_twitter', label: 'URL Akun Twitter / X'}, 
+                    {key: 'link_youtube', label: 'URL Channel YouTube'}
+                ]}
+            ];
+
+            let html = `<div style="max-width: 100%; padding-bottom: 40px;">`;
+
+            sections.forEach(sec => {
+                html += `
+                <div class="setting-section-card">
+                    <div class="setting-section-header">
+                        <i class="fa-solid ${sec.icon}"></i> ${sec.title}
+                    </div>
+                    <div class="setting-section-body">`;
+
+                sec.fields.forEach(f => {
+                    let val = ""; 
+                    const row = data.find(d => d.key_name === f.key); 
+                    if(row) { val = row.key_value || ""; }
+                    if(!val && f.defaultValue) { val = f.defaultValue; }
+                    if(f.isSecret) { val = ""; }
+
+                    if (f.isCredential) {
+                        const inputType = f.type || 'text';
+                        html += `
+                        <div class="dynamic-field">
+                            <label>${f.label}</label>
+                            <input type="${inputType}" id="input_${f.key}" class="form-control admin-credential-input" data-key="${f.key}" value="${val}" placeholder="${f.placeholder || 'Masukkan data admin'}" autocomplete="${inputType === 'password' ? 'new-password' : 'username'}">
+                        </div>`;
+                    }
+                    else if (f.type === 'select') {
+                        let optsHtml = f.options.map(o => `<option value="${o.val}" ${val === o.val ? 'selected' : ''}>${o.text}</option>`).join('');
+                        html += `
+                        <div class="dynamic-field">
+                            <label>${f.label}</label>
+                            <select id="input_${f.key}" class="form-control setting-input" data-key="${f.key}">
+                                ${optsHtml}
+                            </select>
+                        </div>`;
+                    }
+                    else if (f.isTextarea) {
+                        html += `
+                        <div class="dynamic-field">
+                            <label>${f.label}</label>
+                            <textarea id="input_${f.key}" class="form-control setting-input form-textarea" data-key="${f.key}">${val}</textarea>
+                        </div>`;
+                    }
+                    else if (f.isImage) {
+                        html += `
+                        <div class="dynamic-field">
+                            <label>${f.label}</label>
+                            <div class="upload-group">
+                                <input type="text" id="input_${f.key}" class="form-control setting-input" data-key="${f.key}" value="${val}" placeholder="https://...">
+                                <input type="file" id="file_${f.key}" accept="image/*" style="display:none" onchange="uploadToImageKit(this, 'input_${f.key}')">
+                                <button type="button" class="btn-upload" onclick="document.getElementById('file_${f.key}').click()">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload</span>
+                                </button>
+                            </div>
+                            <div id="status_${f.key}" style="font-size:11px; font-weight:700; margin-top:6px; display:none;"></div>
+                        </div>`;
+                    } else {
+                        html += `
+                        <div class="dynamic-field">
+                            <label>${f.label}</label>
+                            <input type="text" id="input_${f.key}" class="form-control setting-input" data-key="${f.key}" value="${val}" placeholder="Kosongkan jika tidak digunakan">
+                        </div>`;
+                    }
+                });
+
+                html += `</div></div>`;
+            });
+
+            html += `
+                <div style="position: sticky; bottom: 20px; text-align: right; z-index: 90;">
+                    <button id="btn-save-settings" class="btn" style="width:auto; padding: 16px 40px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);" onclick="saveSettingsBatch()">
+                        <i class="fa-solid fa-floppy-disk" style="margin-right:8px;"></i> SIMPAN SEMUA KONFIGURASI
+                    </button>
+                </div>
+            </div>`;
+            
+            document.getElementById('table-container').innerHTML = html;
+        }
+
+        // --- FUNGI SIMPAN BATCH AMAN MEMAKAI UPSERT WORKER ---
+        async function saveSettingsBatch() {
+            const inputs = document.querySelectorAll('.setting-input');
+            const btn = document.querySelector('#btn-save-settings');
+            if(btn) { btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Menyimpan ke Cloudflare..."; btn.disabled = true; }
+
+            try {
+                let successCount = 0;
+                for(let input of inputs) {
+                    const key = input.getAttribute('data-key');
+                    const val = input.value;
+
+                    // Gunakan key_name sebagai target body.id agar tertangkap fungsi ON CONFLICT
+                    const res = await adminFetch({ action: "update", table: "settings", id: key, data: { key_value: val } });
+                    const data = await res.json();
+                    if(data.status !== "success") throw new Error(data.message || "Gagal menyimpan konfigurasi.");
+                    successCount++;
+                }
+                const usernameInput = document.getElementById('input_admin_username');
+                const passwordInput = document.getElementById('input_admin_password');
+                const currentUsername = localStorage.getItem("admin_username") || "mimin";
+                const nextUsername = usernameInput ? usernameInput.value.trim() : "";
+                const nextPassword = passwordInput ? passwordInput.value : "";
+                const usernameChanged = nextUsername && nextUsername !== currentUsername;
+                const passwordChanged = nextPassword !== "";
+
+                if (usernameChanged || passwordChanged) {
+                    const res = await adminFetch({ action: "update_admin_credentials", username: nextUsername || currentUsername, password: nextPassword });
+                    const data = await res.json();
+                    if(data.status !== "success") throw new Error(data.message || "Gagal memperbarui akses admin.");
+                    if(data.token) localStorage.setItem("admin_token", data.token);
+                    if(data.username) localStorage.setItem("admin_username", data.username);
+                    successCount++;
+                }
+                alert("🎉 Super Sukses! " + successCount + " Pengaturan Berhasil Diperbarui.");
+                loadData(); 
+            } catch (e) { 
+                alert(e.message || "Gagal menyimpan, periksa jaringan."); 
+            }
+            if(btn) { btn.innerHTML = "<i class='fa-solid fa-floppy-disk'></i> SIMPAN SEMUA KONFIGURASI"; btn.disabled = false; }
+        }
+
+        function renderTable() {
+            if(currentHeaders.length === 0) return document.getElementById('table-container').innerHTML = "<p style='padding:40px;text-align:center;color:var(--slate-500);font-weight:600;'>Struktur tabel SQLite Kosong.</p>";
+            
+            let html = `<div class="table-container"><table><thead><tr>`;
+
+            if (currentTable === 'donations') {
+                html += `<th>INVOICE & WAKTU</th><th>MEMBER AREA</th><th>TAGIHAN & METODE</th><th>STATUS ACCESS</th><th class="sticky-col-right" style="text-align:right; width: 120px;">AKSI</th></tr></thead><tbody>`;
+                currentData.forEach(row => {
+                    let dateStr = row.created_at || '';
+                    if (dateStr) {
+                        const d = new Date(dateStr);
+                        if(!isNaN(d)) dateStr = d.toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+                    }
+
+                    let statusBadge = ''; let validationBtn = '';
+                    if ((row.status || '').toLowerCase() === 'pending') {
+                        statusBadge = `<span style="font-size:10px; font-weight:800; color:#d97706; background:#fef3c7; padding:4px 8px; border-radius:4px;">PENDING</span>`;
+                        validationBtn = `<button class="btn-icon acc" onclick="validateDonation('${row.id}')" title="Aktivasi Akses Member"><i class="fa-solid fa-check"></i></button>`;
+                    } else {
+                        statusBadge = `<span style="font-size:10px; font-weight:800; color:var(--success); background:#ecfdf5; padding:4px 8px; border-radius:4px;">AKTIF / LUNAS</span>`;
+                    }
+
+                    let safeId = row.id ? row.id.toString() : '';
+
+                    html += `<tr>
+                        <td>
+                            <div style="font-weight:800; color:var(--slate-800); font-family:monospace; margin-bottom:2px;">${row.id}</div>
+                            <div style="font-size:11px; font-weight:600; color:var(--slate-500);"><i class="fa-regular fa-calendar" style="margin-right:4px;"></i>${dateStr}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight:700; color:var(--slate-800); margin-bottom:2px;">${row.nama}</div>
+                            <div style="font-size:11px; font-weight:600; color:var(--slate-500);"><i class="fa-brands fa-whatsapp" style="color:#25D366; margin-right:4px;"></i>${row.whatsapp || '-'}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight:800; color:var(--brand-blue); margin-bottom:2px;">Rp ${(row.nominal || 0).toLocaleString('id-ID')}</div>
+                            <div style="font-size:11px; font-weight:700; color:var(--slate-500); text-transform:uppercase;">${row.metode_pembayaran || '-'}</div>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td class="sticky-col-right">
+                            <div class="action-btns" style="justify-content: flex-end;">
+                                ${validationBtn}
+                                <button class="btn-icon edit" onclick="openModal('edit', '${safeId}')" title="Edit Transaksi"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn-icon delete" onclick="deleteData('${safeId}')" title="Hapus Transaksi"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+            } else {
+                let displayHeaders = currentHeaders.filter(h => !['created_at', 'deskripsi', 'isi', 'content', 'password', 'pdf_drive_id', 'pdf_download_url'].includes(h.toLowerCase())); 
+                
+                displayHeaders.forEach(th => { html += `<th>${th.replace(/_/g, ' ')}</th>`; });
+                html += `<th class="sticky-col-right" style="text-align:right; width: 100px;">Aksi</th></tr></thead><tbody>`;
+                
+                currentData.forEach((row) => {
+                    html += `<tr>`;
+                    displayHeaders.forEach(header => { 
+                        let cell = row[header] || '';
+                        
+                        if(cell.toString().includes('ik.imagekit.io') || cell.toString().match(/\.(jpeg|jpg|gif|png|svg)$/i) != null) {
+                            html += `<td><img src="${cell}" style="height:40px; width:65px; border-radius:6px; object-fit:cover; border:1px solid var(--slate-200);"></td>`;
+                        } else if (header.toLowerCase() === 'target' || header.toLowerCase() === 'saldo') {
+                            let label = header.toLowerCase() === 'target' ? 'Harga: ' : '';
+                            html += `<td><div class="td-text" style="font-weight:800; color:var(--brand-blue);">${label}Rp ${parseInt(cell || 0).toLocaleString('id-ID')}</div></td>`;
+                        } else if (header.toLowerCase() === 'is_active') {
+                            let badge = cell == 1 ? '<span style="color:var(--success);font-weight:bold;">Aktif</span>' : '<span style="color:var(--slate-400);font-weight:bold;">Mati</span>';
+                            html += `<td>${badge}</td>`;
+                        } else {
+                            html += `<td><div class="td-text" title="${cell}">${cell}</div></td>`; 
+                        }
+                    });
+                    
+                    let safeId = row.id ? row.id.toString() : '';
+
+                    html += `
+                        <td class="sticky-col-right">
+                            <div class="action-btns" style="justify-content: flex-end;">
+                                <button class="btn-icon edit" onclick="openModal('edit', '${safeId}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn-icon delete" onclick="deleteData('${safeId}')" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            html += `</tbody></table></div>`;
+            document.getElementById('table-container').innerHTML = html;
+        }
+
+        async function validateDonation(id) {
+            if(!id) return;
+            if(!confirm("Konfirmasi Pembayaran Lunas? Akses file premium member otomatis terbuka.")) return;
+            try {
+                const res = await adminFetch({ action: "validate_donation", id: id });
+                const data = await res.json();
+                if(data.status === "success") loadData(); else alert("Gagal: " + data.message);
+            } catch(e) { alert("Masalah komunikasi server."); }
+        }
+
+        function openModal(mode, rowId = '') {
+            if (mode === 'edit' && !rowId) return alert("ID bermasalah.");
+            currentEditId = rowId;
+            document.getElementById('modal-title').innerText = mode === 'add' ? 'Tambah Item Baru' : 'Perbarui Data';
+            
+            let rowData = null;
+            if (mode === 'edit') { rowData = currentData.find(r => String(r.id || '') === String(rowId)); }
+            
+            let formHtml = '';
+
+            currentHeaders.forEach((header) => {
+                let val = (mode === 'edit' && rowData) ? (rowData[header] || '') : '';
+                let headLower = header.toLowerCase();
+
+                if(currentTable === 'news' && !['id', 'title', 'image_url', 'content'].includes(headLower)) return; 
+
+                if(headLower === 'id' || headLower === 'created_at') {
+                    if(mode === 'edit') formHtml += `<div class="dynamic-field"><label>${header.replace(/_/g,' ')}</label><input type="text" id="input_${header}" class="form-control" value="${val}" disabled style="background:var(--slate-50); color:var(--slate-400);"></div>`;
+                    return; 
+                }
+
+                if(headLower === 'is_active') {
+                    formHtml += `
+                    <div class="dynamic-field">
+                        <label>Status Publikasi</label>
+                        <select id="input_${header}" class="form-control">
+                            <option value="1" ${val == '1' || val === '' ? 'selected' : ''}>Aktif (Tampilkan)</option>
+                            <option value="0" ${val == '0' ? 'selected' : ''}>Nonaktif (Sembunyikan)</option>
+                        </select>
+                    </div>`;
+                }
+                else if(headLower === 'kategori' && currentTable === 'campaigns') {
+                    // PENGGUNAAN DATALIST UNTUK KATEGORI DINAMIS
+                    const catOptions = ['Umum', 'Ebook', 'Software', 'Template', 'Video Course', 'Plugin'];
+                    let opts = catOptions.map(c => `<option value="${c}">`).join('');
+                    
+                    formHtml += `
+                    <div class="dynamic-field">
+                        <label>Kategori Produk</label>
+                        <input type="text" id="input_${header}" class="form-control" value="${val}" list="list_${header}" placeholder="Pilih atau ketik kategori baru...">
+                        <datalist id="list_${header}">
+                            ${opts}
+                        </datalist>
+                    </div>`;
+                }
+                else if(headLower === 'tipe_produk' && currentTable === 'campaigns') {
+                    const types = [{v:'ebook', t:'E-Book (Ada Frame Preview PDF)'}, {v:'software', t:'Software / Script Asset'}, {v:'template', t:'Template Desain / Canva'}, {v:'video', t:'Video Course Link'}];
+                    let opts = types.map(t => `<option value="${t.v}" ${val.toLowerCase() === t.v ? 'selected' : ''}>${t.t}</option>`).join('');
+                    formHtml += `<div class="dynamic-field"><label>Format Display Akses</label><select id="input_${header}" class="form-control">${opts}</select></div>`;
+                }
+                else if(headLower === 'target' && currentTable === 'campaigns') {
+                    formHtml += `<div class="dynamic-field"><label>Harga Jual Produk (Nominal Angka)</label><input type="number" id="input_${header}" class="form-control" value="${val || 0}"></div>`;
+                }
+                else if(headLower.includes('isi') || headLower.includes('deskripsi') || headLower.includes('doa') || headLower.includes('content')) {
+                    formHtml += `<div class="dynamic-field"><label>${header.replace(/_/g,' ')}</label><textarea id="input_${header}" class="form-control form-textarea">${val}</textarea></div>`;
+                } 
+                else if(headLower.includes('image') || headLower.includes('gambar') || headLower.includes('url')) {
+                    formHtml += `
+                    <div class="dynamic-field">
+                        <label>${header.replace(/_/g,' ')}</label>
+                        <div class="upload-group">
+                            <input type="text" id="input_${header}" value="${val}" placeholder="https://...">
+                            <input type="file" id="file_${header}" accept="image/*" style="display:none" onchange="uploadToImageKit(this, 'input_${header}')">
+                            <button type="button" class="btn-upload" onclick="document.getElementById('file_${header}').click()">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload</span>
+                            </button>
+                        </div>
+                        <div id="status_${header}" style="font-size:11px; font-weight:700; margin-top:6px; display:none;"></div>
+                    </div>`;
+                } 
+                else {
+                    formHtml += `<div class="dynamic-field"><label>${header.replace(/_/g,' ')}</label><input type="text" id="input_${header}" class="form-control" value="${val}"></div>`;
+                }
+            });
+            
+            document.getElementById('dynamic-form').innerHTML = formHtml;
+            document.getElementById('modal').style.display = "flex";
+        }
+
+        function closeModal() { document.getElementById('modal').style.display = "none"; }
+
+        async function uploadToImageKit(fileInput, targetInputId) {
+            if (!ikPrivateKey) { alert("Atur ImageKit Private Key dulu di Settings!"); fileInput.value = ""; return; }
+            const file = fileInput.files[0]; if (!file) return;
+
+            const targetInput = document.getElementById(targetInputId);
+            const statusDiv = document.getElementById(targetInputId.replace('input_', 'status_'));
+            const btnSaveModal = document.getElementById('btn-save-modal');
+            
+            statusDiv.style.display = "block"; statusDiv.style.color = "var(--brand-blue)";
+            statusDiv.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Uploading...";
+            targetInput.disabled = true; if(btnSaveModal) btnSaveModal.disabled = true;
+
+            const formData = new FormData();
+            formData.append("file", file); formData.append("fileName", file.name);
+
+            try {
+                const response = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
+                    method: "POST", headers: { "Authorization": "Basic " + btoa(ikPrivateKey + ":") }, body: formData
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    targetInput.value = result.url;
+                    statusDiv.style.color = "var(--success)";
+                    statusDiv.innerHTML = "<i class='fa-solid fa-circle-check'></i> Sinkron ke CDN Sukses!";
+                } else { throw new Error(result.message || "Gagal"); }
+            } catch (e) {
+                statusDiv.style.color = "var(--danger)";
+                statusDiv.innerHTML = "<i class='fa-solid fa-triangle-exclamation'></i> Error: " + e.message;
+            } finally { 
+                targetInput.disabled = false; if(btnSaveModal) btnSaveModal.disabled = false;
+                fileInput.value = ""; 
+            }
+        }
+
+        async function saveData() {
+            let payloadData = {};
+            currentHeaders.forEach((header) => {
+                let el = document.getElementById(`input_${header}`);
+                if(el && el.disabled === false) payloadData[header] = el.value;
+            });
+
+            if(!currentEditId) { payloadData.id = "prod_" + Date.now().toString(36); }
+
+            let payload = { action: currentEditId ? "update" : "add", table: currentTable, data: payloadData };
+            if(currentEditId) payload.id = currentEditId;
+
+            try {
+                const res = await adminFetch(payload);
+                const data = await res.json();
+                if(data.status === "success") { closeModal(); loadData(); } else alert("Gagal: " + data.message);
+            } catch(e) { alert("Terjadi gangguan server"); }
+        }
+
+        async function deleteData(id) {
+            if(!id || !confirm("Hapus Item ini permanen?")) return;
+            try {
+                const res = await adminFetch({ action: "delete", table: currentTable, id: id });
+                const data = await res.json();
+                if(data.status === "success") loadData(); else alert("Gagal.");
+            } catch(e) { alert("Koneksi gagal."); }
+        }
+    </script>
+</body>
+</html>

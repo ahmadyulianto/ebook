@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tentang Kami</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --primary: #00AAE7; --bg: #f8fafc; --text: #0f172a; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        body { background: var(--bg); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        .app-wrapper { width: 100%; max-width: 480px; background: white; min-height: 100vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 25px rgba(0,0,0,0.05); padding-bottom: 80px; overflow-x: hidden; }
+        
+        .header { padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 50; }
+        .back-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--bg); display: flex; justify-content: center; align-items: center; color: var(--text); text-decoration: none; font-size: 16px; transition: 0.2s; border: 1px solid var(--border);}
+        .back-btn:hover { background: #e2e8f0; }
+        .header-title { font-size: 18px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.5px;}
+
+        .content { padding: 0 20px 20px 20px; flex-grow: 1; background: var(--bg); }
+        
+        .hero-section { text-align: center; padding: 40px 0 30px 0; }
+        .hero-icon { width: 80px; height: 80px; background: white; border-radius: 20px; display: inline-flex; justify-content: center; align-items: center; font-size: 40px; color: var(--primary); margin-bottom: 15px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border);}
+        .hero-title { font-size: 24px; font-weight: 900; color: var(--text); letter-spacing: -0.5px; margin-bottom: 5px;}
+        .hero-subtitle { font-size: 13px; color: var(--text-muted); font-weight: 600;}
+
+        /* KARTU INFORMASI UTAMA */
+        .info-card { background: white; border-radius: 16px; padding: 25px 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid var(--border); margin-bottom: 20px; }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); }
+        .card-header i { color: var(--primary); font-size: 20px; }
+        .card-header h2 { font-size: 16px; font-weight: 900; color: var(--text); margin: 0; letter-spacing: -0.3px;}
+        
+        .desc-text { font-size: 14px; color: #334155; line-height: 1.7; font-weight: 500; white-space: pre-wrap; }
+        
+        /* LIST KONTAK */
+        .contact-list { display: flex; flex-direction: column; gap: 15px; }
+        .contact-item { display: flex; gap: 15px; align-items: flex-start; text-decoration: none; color: inherit;}
+        .contact-icon { width: 38px; height: 38px; border-radius: 10px; background: color-mix(in srgb, var(--primary) 10%, white); color: var(--primary); display: flex; justify-content: center; align-items: center; flex-shrink: 0; font-size: 16px; }
+        .contact-detail { padding-top: 2px; }
+        .contact-label { font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 2px;}
+        .contact-value { font-size: 14px; color: var(--text); font-weight: 800; line-height: 1.4;}
+
+        /* ACCORDION (Syarat & Privasi) */
+        .accordion { background: white; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 15px; overflow: hidden; }
+        .accordion-header { width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: center; background: white; border: none; cursor: pointer; text-align: left; transition: 0.2s; }
+        .accordion-header:hover { background: var(--bg); }
+        .accordion-title { font-size: 15px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 12px; }
+        .accordion-title i { color: var(--primary); font-size: 18px;}
+        .accordion-icon { color: var(--text-muted); transition: 0.3s; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: white; }
+        .accordion-inner { padding: 0 20px 20px 20px; font-size: 13px; color: #475569; line-height: 1.7; border-top: 1px dashed var(--border); margin-top: -5px; white-space: pre-wrap;}
+        .accordion.active .accordion-icon { transform: rotate(180deg); }
+
+        /* REKENING BOX */
+        .rek-box { background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .rek-name { font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px;}
+        .rek-no { font-size: 16px; font-weight: 900; color: var(--text); letter-spacing: 1px;}
+
+        /* BOTTOM NAV BAR */
+        .bottom-nav { background: white; padding: 10px 5px 15px 5px; position: fixed; bottom: 0; width: 100%; max-width: 480px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); box-shadow: 0 -4px 20px rgba(0,0,0,0.05); }
+        .nav-item { text-align: center; text-decoration: none; color: var(--text-muted); padding: 4px; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s;}
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 20px; margin-bottom: 2px;}
+        .nav-label { font-size: 10px; font-weight: 800; white-space: nowrap;}
+        
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay">
+        <i class="fa-solid fa-spinner fa-spin fa-2x" style="margin-bottom: 15px;"></i>
+        Memuat Profil Platform...
+    </div>
+
+    <div class="app-wrapper">
+        <div class="header">
+            <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+            <h1 class="header-title">Informasi Platform</h1>
+        </div>
+
+        <div class="content">
+            <div class="hero-section">
+                <div class="hero-icon"><i class="fa-solid fa-store"></i></div>
+                <div class="hero-title" id="t-brand">Official Store</div>
+                <div class="hero-subtitle">Pusat Layanan Produk Digital Terpercaya</div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-header">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <h2>Tentang Kami</h2>
+                </div>
+                <div class="desc-text" id="t-desc">Sedang memuat informasi profil perusahaan...</div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-header">
+                    <i class="fa-solid fa-headset"></i>
+                    <h2>Kontak & Layanan Bantuan</h2>
+                </div>
+                <div class="contact-list">
+                    <a href="javascript:void(0)" id="link-wa" class="contact-item">
+                        <div class="contact-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                        <div class="contact-detail">
+                            <div class="contact-label">WhatsApp Admin</div>
+                            <div class="contact-value" id="t-wa" style="color: #10b981;">Belum ada kontak</div>
+                        </div>
+                    </a>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <div class="contact-detail">
+                            <div class="contact-label">Email Resmi</div>
+                            <div class="contact-value" id="t-email">admin@website.com</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <div class="contact-detail">
+                            <div class="contact-label">Alamat Kantor</div>
+                            <div class="contact-value" id="t-alamat" style="font-size: 13px; font-weight: 600;">Belum ada data alamat.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-title"><i class="fa-solid fa-file-contract"></i> Syarat & Ketentuan</div>
+                    <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-inner" id="t-snk">
+Kami mengatur beberapa syarat dan ketentuan dalam penggunaan produk digital yang ada di platform ini demi kenyamanan bersama. Syarat & Ketentuan lengkap belum diperbarui oleh Admin.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-title"><i class="fa-solid fa-user-shield"></i> Kebijakan Privasi</div>
+                    <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-inner" id="t-privasi">
+Kami sangat menjaga privasi dan data pribadi pengguna kami. Data nomor WhatsApp dan identitas Anda hanya digunakan untuk keperluan transaksi dan pengiriman akses produk digital.
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <h2>Rekening Pembayaran Resmi</h2>
+                </div>
+                <div id="rek-container">
+                    </div>
+                <div id="no-rek" style="font-size: 13px; color: var(--text-muted); font-weight: 700; text-align: center; display: none; padding: 10px 0;">Data rekening bank belum diatur oleh Admin.</div>
+            </div>
+
+        </div>
+
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fa-solid fa-house nav-icon"></i><span class="nav-label">Home</span>
+            </a>
+            <a href="pesanan-saya.html" class="nav-item">
+                <i class="fa-solid fa-box-open nav-icon"></i><span class="nav-label">Pesanan Saya</span>
+            </a>
+            <a href="berita.html" class="nav-item">
+                <i class="fa-regular fa-newspaper nav-icon"></i><span class="nav-label">Artikel</span>
+            </a>
+            <a href="login.html" id="nav-login-btn" class="nav-item">
+                <i class="fa-solid fa-right-to-bracket nav-icon"></i><span class="nav-label">Login</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Logika Accordion Buka-Tutup
+        function toggleAccordion(btn) {
+            const accordion = btn.parentElement;
+            const content = btn.nextElementSibling;
+            
+            if (accordion.classList.contains('active')) {
+                accordion.classList.remove('active');
+                content.style.maxHeight = null;
+            } else {
+                // Tutup semua accordion lain
+                document.querySelectorAll('.accordion').forEach(acc => {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                });
+                
+                accordion.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        }
+
+        // Set warna tema dan menu login jika ada
+        if (localStorage.getItem('theme_color')) {
+            document.documentElement.style.setProperty('--primary', localStorage.getItem('theme_color'));
+        }
+
+        if(localStorage.getItem('user_data')) {
+            const loginMenu = document.getElementById('nav-login-btn');
+            if(loginMenu) {
+                loginMenu.href = "javascript:void(0)";
+                loginMenu.setAttribute("onclick", "logoutUser()");
+                loginMenu.innerHTML = `<i class="fa-solid fa-right-from-bracket nav-icon" style="color: #ef4444;"></i><span class="nav-label" style="color: #ef4444;">Keluar</span>`;
+            }
+        }
+
+        function logoutUser() {
+            if(confirm("Apakah Anda yakin ingin keluar dari akun?")) {
+                localStorage.removeItem('user_data');
+                sessionStorage.removeItem('user_email');
+                sessionStorage.removeItem('user_status');
+                window.location.href = "login.html";
+            }
+        }
+
+        async function loadTentangKami() {
+            try {
+                const res = await fetch('/api/home');
+                const data = await res.json();
+                
+                if(data.settings) {
+                    const s = data.settings;
+                    
+                    if (s.theme_primary_color) {
+                        document.documentElement.style.setProperty('--primary', s.theme_primary_color);
+                    }
+
+                    // Set Brand
+                    if(s.brand_name) {
+                        document.getElementById('t-brand').innerText = s.brand_name;
+                        document.title = "Tentang " + s.brand_name;
+                    }
+                    
+                    // Set Deskripsi & Alamat
+                    if(s.about_deskripsi) document.getElementById('t-desc').innerText = s.about_deskripsi;
+                    if(s.about_alamat) document.getElementById('t-alamat').innerText = s.about_alamat;
+                    
+                    // Set Email (Baru)
+                    if(s.admin_email) {
+                        document.getElementById('t-email').innerText = s.admin_email;
+                    }
+
+                    // Set Syarat & Ketentuan dan Kebijakan Privasi (Baru)
+                    if(s.syarat_ketentuan) document.getElementById('t-snk').innerText = s.syarat_ketentuan;
+                    if(s.kebijakan_privasi) document.getElementById('t-privasi').innerText = s.kebijakan_privasi;
+                    
+                    // Set Kontak WA & Fungsi Klik
+                    if(s.admin_whatsapp) {
+                        document.getElementById('t-wa').innerText = s.admin_whatsapp;
+                        let cleanWa = s.admin_whatsapp.replace(/[^0-9]/g, '');
+                        if (cleanWa.startsWith('0')) cleanWa = '62' + cleanWa.substring(1);
+                        document.getElementById('link-wa').setAttribute('onclick', `window.open('https://wa.me/${cleanWa}', '_blank')`);
+                    }
+
+                    // Set Rekening Dinamis Lengkap (BCA, BRI, Mandiri, BNI, BSI)
+                    let rekContainer = document.getElementById('rek-container');
+                    let rekHTML = "";
+                    let rekCount = 0;
+
+                    const bankList = [
+                        { key: 'rekening_bca', name: 'Bank Central Asia (BCA)' },
+                        { key: 'rekening_bri', name: 'Bank Rakyat Indonesia (BRI)' },
+                        { key: 'rekening_mandiri', name: 'Bank Mandiri' },
+                        { key: 'rekening_bni', name: 'Bank Negara Indonesia (BNI)' },
+                        { key: 'rekening_bsi', name: 'Bank Syariah Indonesia (BSI)' }
+                    ];
+
+                    bankList.forEach(bank => {
+                        if(s[bank.key] && s[bank.key].trim() !== "") {
+                            rekHTML += `
+                                <div class="rek-box">
+                                    <div>
+                                        <div class="rek-name">${bank.name}</div>
+                                        <div class="rek-no">${s[bank.key]}</div>
+                                    </div>
+                                </div>
+                            `;
+                            rekCount++;
+                        }
+                    });
+
+                    if(rekCount > 0) {
+                        rekContainer.innerHTML = rekHTML;
+                    } else {
+                        document.getElementById('no-rek').style.display = 'block';
+                    }
+                }
+            } catch(e) {
+                console.error("Gagal memuat data", e);
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadTentangKami);
+    </script>
+</body>
+</html>
